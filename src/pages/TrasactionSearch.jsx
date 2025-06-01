@@ -42,11 +42,50 @@ const TransactionSearch = ({
   }
 
   const columns = [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Type", dataIndex: "type", key: "type" },
-    { title: "Date", dataIndex: "date", key: "date" },
-    { title: "Amount", dataIndex: "amount", key: "amount" },
-    { title: "Tag", dataIndex: "tag", key: "tag" },
+    { 
+      title: "Name", 
+      dataIndex: "name", 
+      key: "name",
+      render: (text) => <span className="text-secondary-800">{text}</span>
+    },
+    { 
+      title: "Type", 
+      dataIndex: "type", 
+      key: "type",
+      render: (text) => (
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+          text === "income" 
+            ? "bg-success-100 text-success-800" 
+            : "bg-danger-100 text-danger-800"
+        }`}>
+          {text}
+        </span>
+      )
+    },
+    { 
+      title: "Date", 
+      dataIndex: "date", 
+      key: "date",
+      render: (text) => <span className="text-secondary-600">{text}</span>
+    },
+    { 
+      title: "Amount", 
+      dataIndex: "amount", 
+      key: "amount",
+      render: (text, record) => (
+        <span className={`font-medium ${
+          record.type === "income" ? "text-success-600" : "text-danger-600"
+        }`}>
+          ₹{text}
+        </span>
+      )
+    },
+    { 
+      title: "Tag", 
+      dataIndex: "tag", 
+      key: "tag",
+      render: (text) => <span className="text-secondary-600">{text}</span>
+    },
   ];
 
   const filteredTransactions = transactions.filter((transaction) => {
@@ -73,60 +112,67 @@ const TransactionSearch = ({
   }));
 
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 mt-10">
-      {/* Top Filters */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-        <div className="flex items-center border border-gray-300 rounded-md px-3 py-1 w-full md:w-1/2">
-          <img src={search} alt="Search Icon" className="w-4 mr-2" />
-          <input
-            type="text"
-            placeholder="Search by Name"
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full outline-none bg-transparent"
-          />
+    <div className="w-full">
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6 mt-10">
+        <div className="flex-1">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <img src={search} alt="Search" className="h-5 w-5 text-secondary-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search transactions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 pr-3 py-2 border border-secondary-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+          </div>
         </div>
 
         <Select
-          className="w-full md:w-1/3"
+          className="w-full md:w-48"
           onChange={(value) => setTypeFilter(value)}
           value={typeFilter}
           placeholder="Filter by Type"
           allowClear
         >
-          <Option value="">All</Option>
+          <Option value="">All Types</Option>
           <Option value="income">Income</Option>
           <Option value="expense">Expense</Option>
         </Select>
       </div>
 
-      {/* Sorting + Actions */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-        <h2 className="text-lg font-semibold text-center md:text-left">
-          My Transactions
-        </h2>
-
-        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+      {/* Sorting and Actions */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+        <div className="flex items-center space-x-4">
           <Radio.Group
-            className="flex flex-wrap gap-2"
             onChange={(e) => setSortKey(e.target.value)}
             value={sortKey}
+            className="flex flex-wrap gap-2"
           >
-            <Radio.Button value="">No Sort</Radio.Button>
-            <Radio.Button value="date">Sort by Date</Radio.Button>
-            <Radio.Button value="amount">Sort by Amount</Radio.Button>
+            <Radio.Button value="" className="!text-secondary-600 hover:!text-primary-600">
+              No Sort
+            </Radio.Button>
+            <Radio.Button value="date" className="!text-secondary-600 hover:!text-primary-600">
+              Sort by Date
+            </Radio.Button>
+            <Radio.Button value="amount" className="!text-secondary-600 hover:!text-primary-600">
+              Sort by Amount
+            </Radio.Button>
           </Radio.Group>
         </div>
 
-        <div className="flex flex-wrap justify-center items-center gap-3">
+        <div className="flex items-center space-x-3">
           <button
-            className="bg-gray-200 text-black px-4 py-2 rounded-md hover:bg-gray-300 w-full md:w-auto"
             onClick={exportToCsv}
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           >
             Export to CSV
           </button>
           <label
             htmlFor="file-csv"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-blue-700 w-full md:w-auto text-center"
+            className="px-4 py-2 bg-white text-primary-600 border-2 border-primary-500 rounded-lg cursor-pointer hover:bg-primary-50 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           >
             Import from CSV
           </label>
@@ -142,11 +188,24 @@ const TransactionSearch = ({
       </div>
 
       {/* Transactions Table */}
-      <div className="overflow-x-auto bg-white rounded-md shadow-sm">
+      <div className="bg-white rounded-xl shadow-card overflow-x-auto">
         <Table
           columns={columns}
           dataSource={dataSource}
-          pagination={{ pageSize: 5 }}
+          pagination={{ 
+            pageSize: 5,
+            className: "px-4 py-2",
+            itemRender: (page, type, originalElement) => {
+              if (type === 'prev') {
+                return <span className="text-primary-600">Previous</span>;
+              }
+              if (type === 'next') {
+                return <span className="text-primary-600">Next</span>;
+              }
+              return originalElement;
+            }
+          }}
+          className="transaction-table"
         />
       </div>
     </div>

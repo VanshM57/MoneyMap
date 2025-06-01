@@ -20,11 +20,11 @@ const Header = () => {
         }
     }, [user, navigate]);
   return (
-    <div className="sticky w-full px-6 py-3 bg-[var(--theme)] flex justify-between items-center">
+    <div className="sticky top-0 w-full px-6 py-4 bg-primary-600 shadow-md z-50 flex justify-between items-center">
         <p className="text-white font-medium text-[1.2rem] m-0">MoneyMap.</p>
         {user ? (
             <p
-            className="text-[#e3e3e3] font-medium text-base m-0 cursor-pointer hover:text-white transition-all duration-300 flex items-center"
+            className="text-[#e3e3e3] font-medium text-base m-0 cursor-pointer hover:text-white transition-all duration-300 flex items-center space-x-2 bg-primary-500/20 px-4 py-2 rounded-full"
             onClick={logout}
             >
             <span className="mr-4">
